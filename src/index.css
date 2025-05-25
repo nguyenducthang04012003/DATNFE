@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+  width: 6px; /* Độ rộng scrollbar */
+  height: 6px; /* Độ cao cho thanh cuộn ngang */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #f4a261; /* Màu cam nhạt */
+  border-radius: 4px; /* Bo góc */
+}
+
+::-webkit-scrollbar-track {
+  background-color: #fdf6ec; /* Màu nền thanh cuộn */
+}
