@@ -45,6 +45,7 @@ const AddCategory: React.FC<AddCategoryProps> = ({ handleChangePage }) => {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
         },
       });
 

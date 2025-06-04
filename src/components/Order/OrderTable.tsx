@@ -1,6 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { Table, Select, Button, Modal, Input, Collapse, DatePicker, Dropdown, Menu, message } from "antd";
-import { MoreOutlined, EyeOutlined, FilterOutlined, ExclamationCircleOutlined, PayCircleOutlined } from "@ant-design/icons";
+import {
+  Table,
+  Select,
+  Button,
+  Modal,
+  Input,
+  Collapse,
+  DatePicker,
+  Dropdown,
+  Menu,
+  message,
+} from "antd";
+import {
+  MoreOutlined,
+  EyeOutlined,
+  FilterOutlined,
+  ExclamationCircleOutlined,
+  PayCircleOutlined,
+} from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { apiClient } from "../../pages/Home/AuthContext";
 import axios from "axios";
@@ -63,7 +80,11 @@ interface OrderTableProps {
   onUpdate: (updatedOrder: Order) => void;
 }
 
-const OrderTable: React.FC<OrderTableProps> = ({ orders, handleChangePage, onUpdate }) => {
+const OrderTable: React.FC<OrderTableProps> = ({
+  orders,
+  handleChangePage,
+  onUpdate,
+}) => {
   const [filteredOrders, setFilteredOrders] = useState<Order[]>(orders);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderDetails, setOrderDetails] = useState<OrderDetail[]>([]);
@@ -89,7 +110,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, handleChangePage, onUpd
   const fetchProducts = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/Product/ListProduct`, {
-        headers: { accept: "text/plain" },
+        headers: { accept: "text/plain", "ngrok-skip-browser-warning": "true", },
       });
       const productList: Product[] = response.data.data.map((item: any) => ({
         productId: item.productId,
@@ -120,10 +141,18 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, handleChangePage, onUpd
       const numericOrderId = parseInt(orderId);
       if (transactionStatus === "00") {
         // Payment successful, update status to 2 ("Đang chờ xác nhận")
-        updateOrderStatus(numericOrderId, 2, "Thanh toán thành công, trạng thái đơn hàng đã được cập nhật!");
+        updateOrderStatus(
+          numericOrderId,
+          2,
+          "Thanh toán thành công, trạng thái đơn hàng đã được cập nhật!"
+        );
       } else {
         // Payment failed, update status to 0 ("Hủy")
-        updateOrderStatus(numericOrderId, 0, "Thanh toán thất bại, đơn hàng đã bị hủy!");
+        updateOrderStatus(
+          numericOrderId,
+          0,
+          "Thanh toán thất bại, đơn hàng đã bị hủy!"
+        );
       }
       // Clear payment-related localStorage items
       localStorage.removeItem("isPaymentInProgress");
@@ -135,7 +164,11 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, handleChangePage, onUpd
     }
   }, [location, navigate]);
 
-  const updateOrderStatus = async (orderId: number, status: number, successMessage: string) => {
+  const updateOrderStatus = async (
+    orderId: number,
+    status: number,
+    successMessage: string
+  ) => {
     try {
       const token = localStorage.getItem("accessToken");
       const response = await apiClient.put(
@@ -158,7 +191,9 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, handleChangePage, onUpd
         onUpdate({ ...response.data.data, orderId });
         window.location.reload();
       } else {
-        message.error(response.data.message || "Không thể cập nhật trạng thái đơn hàng!");
+        message.error(
+          response.data.message || "Không thể cập nhật trạng thái đơn hàng!"
+        );
       }
     } catch (error) {
       console.error("Lỗi khi cập nhật trạng thái đơn hàng:", error);
@@ -179,6 +214,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, handleChangePage, onUpd
       // Map product units to order details
       const updatedDetails = details.map((detail) => {
         const product = products.find((p) => p.productId === detail.productId);
+        console.log(products);
         return {
           ...detail,
           product: {
@@ -212,7 +248,9 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, handleChangePage, onUpd
         message.success("Hủy đơn hàng thành công!");
         onUpdate({ ...selectedOrder!, status: 0 });
         setFilteredOrders((prev) =>
-          prev.map((order) => (order.orderId === orderId ? { ...order, status: 0 } : order))
+          prev.map((order) =>
+            order.orderId === orderId ? { ...order, status: 0 } : order
+          )
         );
       } else {
         message.error(response.data.message || "Không thể hủy đơn hàng!");
@@ -250,9 +288,17 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, handleChangePage, onUpd
       }
     } catch (error: any) {
       console.error("Lỗi khi tạo URL thanh toán:", error);
-      if (error.response?.data?.message?.includes("đơn hàng đã tồn tại hoặc đang được xử lý")) {
+      if (
+        error.response?.data?.message?.includes(
+          "đơn hàng đã tồn tại hoặc đang được xử lý"
+        )
+      ) {
         message.error("Đơn hàng này đã được thanh toán hoặc đang xử lý!");
-        updateOrderStatus(order.orderId, order.status, "Cập nhật trạng thái đơn hàng!");
+        updateOrderStatus(
+          order.orderId,
+          order.status,
+          "Cập nhật trạng thái đơn hàng!"
+        );
       } else {
         message.error("Lỗi khi tạo URL thanh toán!");
       }
@@ -276,7 +322,11 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, handleChangePage, onUpd
     Modal.confirm({
       title: "Xác nhận thanh toán đơn hàng",
       icon: <PayCircleOutlined />,
-      content: `Bạn có chắc chắn muốn thanh toán đơn hàng "${order.orderCode}" với số tiền ${totalWithDelivery.toLocaleString()} VND (bao gồm ${order.deliveryFee?.toLocaleString() || 0} VND phí vận chuyển) không?`,
+      content: `Bạn có chắc chắn muốn thanh toán đơn hàng "${
+        order.orderCode
+      }" với số tiền ${totalWithDelivery.toLocaleString()} VND (bao gồm ${
+        order.deliveryFee?.toLocaleString() || 0
+      } VND phí vận chuyển) không?`,
       okText: "Thanh toán",
       okType: "primary",
       cancelText: "Thoát",
@@ -299,7 +349,9 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, handleChangePage, onUpd
     if (searchTerm.trim()) {
       const normalizedSearch = removeVietnameseTones(searchTerm.toLowerCase());
       filtered = filtered.filter((order) =>
-        removeVietnameseTones(order.orderCode.toLowerCase()).includes(normalizedSearch)
+        removeVietnameseTones(order.orderCode.toLowerCase()).includes(
+          normalizedSearch
+        )
       );
     }
     if (statusFilter !== null) {
@@ -308,7 +360,10 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, handleChangePage, onUpd
     if (dateRange) {
       filtered = filtered.filter((order) => {
         const createdDate = new Date(order.createdDate);
-        return createdDate >= new Date(dateRange[0]) && createdDate <= new Date(dateRange[1]);
+        return (
+          createdDate >= new Date(dateRange[0]) &&
+          createdDate <= new Date(dateRange[1])
+        );
       });
     }
     setFilteredOrders(filtered);
@@ -338,7 +393,8 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, handleChangePage, onUpd
       title: "Phí vận chuyển (VND)",
       dataIndex: "deliveryFee",
       key: "deliveryFee",
-      render: (fee: number | null) => (fee != null ? fee.toLocaleString("vi-VN") : "N/A"),
+      render: (fee: number | null) =>
+        fee != null ? fee.toLocaleString("vi-VN") : "N/A",
     },
     {
       title: "Tổng tiền (VND)",
@@ -366,15 +422,16 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, handleChangePage, onUpd
                 <EyeOutlined /> Xem chi tiết
               </Menu.Item>
               {record.status === 1 && (
-                <Menu.Item
-                  key="payment"
-                  onClick={() => showPayConfirm(record)}
-                >
+                <Menu.Item key="payment" onClick={() => showPayConfirm(record)}>
                   <PayCircleOutlined /> Thanh toán đơn hàng
                 </Menu.Item>
               )}
               {record.status === 1 && (
-                <Menu.Item key="cancel" onClick={() => showCancelConfirm(record)} danger>
+                <Menu.Item
+                  key="cancel"
+                  onClick={() => showCancelConfirm(record)}
+                  danger
+                >
                   <ExclamationCircleOutlined /> Hủy đơn hàng
                 </Menu.Item>
               )}
@@ -389,7 +446,11 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, handleChangePage, onUpd
   ];
 
   const detailColumns = [
-    { title: "Tên sản phẩm", dataIndex: ["product", "productName"], key: "productName" },
+    {
+      title: "Tên sản phẩm",
+      dataIndex: ["product", "productName"],
+      key: "productName",
+    },
     { title: "Đơn vị tính", dataIndex: ["product", "unit"], key: "unit" },
     { title: "Số lượng", dataIndex: "quantity", key: "quantity" },
     {
@@ -414,7 +475,11 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, handleChangePage, onUpd
       title: "Thành tiền (đã bao gồm thuế GTGT)",
       key: "totalWithTax",
       render: (record: OrderDetail) =>
-        ((record.quantity * record.product.sellingPrice) * (1 + (record.product.vat || 0) / 100)).toLocaleString("vi-VN"),
+        (
+          record.quantity *
+          record.product.sellingPrice *
+          (1 + (record.product.vat || 0) / 100)
+        ).toLocaleString("vi-VN"),
     },
   ];
 
@@ -428,7 +493,10 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, handleChangePage, onUpd
           style={{ width: 200 }}
           allowClear
         />
-        <Button icon={<FilterOutlined />} onClick={() => setShowFilters(!showFilters)}>
+        <Button
+          icon={<FilterOutlined />}
+          onClick={() => setShowFilters(!showFilters)}
+        >
           Lọc
         </Button>
         <Button type="primary" onClick={() => handleChangePage("Tạo đơn hàng")}>
@@ -457,7 +525,11 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, handleChangePage, onUpd
                 <span style={{ marginRight: 8 }}>Lọc theo ngày tạo:</span>
                 <RangePicker
                   onChange={(_, dateStrings) =>
-                    setDateRange(dateStrings.length === 2 ? (dateStrings as [string, string]) : null)
+                    setDateRange(
+                      dateStrings.length === 2
+                        ? (dateStrings as [string, string])
+                        : null
+                    )
                   }
                   style={{ width: "100%" }}
                 />

@@ -69,7 +69,7 @@ const AIImageAnalyzer: React.FC<AIImageAnalyzerProps> = ({
           .map((name: string, idx: number) => `${idx + 1}. ${name}`)
           .join(
             "\n"
-          )}\n\nHãy phân tích ảnh dưới đây và trích xuất:\n- Tên sản phẩm\n- Hãng sản xuất\n- Trọng lượng (g)\n- Dung tích (ml).\nHãy so sánh thông tin phẩm từ ảnh và đối chiếu với dữ liệu đã gửi xem có trùng khớp với sản phẩm nào hay không (nếu trùng khớp thì trả về existsInDatabase : true, không trùng khớp thì trả về existsInDatabase :false)`;
+          )}\n\nHãy phân tích ảnh dưới đây và trích xuất:\n- Tên sản phẩm\n- Hãng sản xuất\n- Trọng lượng (g)\n- Dung tích (ml).\nHãy so sánh thông tin tên sản phẩm từ ảnh và đối chiếu với dữ liệu đã gửi xem có trùng khớp với sản phẩm nào hay không (nếu trùng khớp thì trả về existsInDatabase: true, không trùng khớp thì trả về existsInDatabase: false)`;
 
         const aiResponse = await axios.post(
           "https://api.openai.com/v1/chat/completions",
@@ -113,9 +113,15 @@ const AIImageAnalyzer: React.FC<AIImageAnalyzerProps> = ({
         const weightRaw = extractField("Trọng lượng");
         const volumeRaw = extractField("Dung tích");
 
+        // const existsMatch = gptContent.match(
+        //   /existsInDatabase\s*[:\-]?\s*(true|false)/i
+        // );
         const existsMatch = gptContent.match(
-          /existsInDatabase\s*[:\-]?\s*(true|false)/i
+          /existsInDatabase.*?[:\s]*?(true|false)/i
         );
+        console.log("gptContent: ", gptContent);
+        console.log("existsMatch: ", existsMatch);
+
         const existsInDatabaseRaw = existsMatch
           ? existsMatch[1].toLowerCase() === "true"
           : null;
@@ -248,17 +254,20 @@ const AIImageAnalyzer: React.FC<AIImageAnalyzerProps> = ({
         </table>
 
         {/* Thông báo tồn tại sản phẩm */}
-        {productInfo.existsInDatabase !== null && (
-          <p
-            className={`mt-3 font-semibold text-center ${
-              productInfo.existsInDatabase ? "text-green-600" : "text-red-600"
-            }`}
-          >
-            {productInfo.existsInDatabase
-              ? "✅ Sản phẩm CÓ tồn tại trong hệ thống."
-              : "❌ Sản phẩm KHÔNG tồn tại trong hệ thống."}
-          </p>
-        )}
+
+        {productInfo.existsInDatabase !== null &&
+          (console.log(productInfo.existsInDatabase),
+          (
+            <p
+              className={`mt-3 font-semibold text-center ${
+                productInfo.existsInDatabase ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {productInfo.existsInDatabase
+                ? "✅ Sản phẩm CÓ tồn tại trong hệ thống."
+                : "❌ Sản phẩm KHÔNG tồn tại trong hệ thống."}
+            </p>
+          ))}
 
         {/* Hiển thị dòng gợi ý từ GPT nếu có */}
         {gptSuggestion && (

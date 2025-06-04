@@ -258,15 +258,11 @@ const IssueNoteTable: React.FC<IssueNoteTableProps> = ({
   }> => {
     try {
       // Lấy danh sách ProductLot
-      const lotResponse = await axios.get(
-        "${API_BASE_URL}/ProductLot"
-      );
+      const lotResponse = await axios.get("${API_BASE_URL}/ProductLot");
       const productLots: ProductLotAPI[] = lotResponse.data.data || [];
 
       // Lấy danh sách Lot
-      const lotApiResponse = await axios.get(
-        "${API_BASE_URL}/Lot"
-      );
+      const lotApiResponse = await axios.get("${API_BASE_URL}/Lot");
       const lots: Lot[] = lotApiResponse.data.data || [];
 
       // Lấy danh sách StorageRoom
@@ -321,12 +317,9 @@ const IssueNoteTable: React.FC<IssueNoteTableProps> = ({
   const fetchCustomerName = async (customerId: number): Promise<string> => {
     try {
       const token = localStorage.getItem("accessToken");
-      const response = await axios.get(
-        '${API_BASE_URL}/User/GetCustomerList',
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.get("${API_BASE_URL}/User/GetCustomerList", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const customers: Customer[] = response.data.data;
       const customer = customers.find((c) => c.userId === customerId);
       if (customer) {
@@ -658,12 +651,12 @@ const IssueNoteTable: React.FC<IssueNoteTableProps> = ({
       dataIndex: ["productLot", "product", "productCode"],
       key: "productCode",
     },
-    {
-      title: "Mã lô",
-      key: "lotCode",
-      render: (_: any, record: IssueNoteDetail) =>
-        lotCodeMap[record.productLotId] || "N/A",
-    },
+    // {
+    //   title: "Mã lô",
+    //   key: "lotCode",
+    //   render: (_: any, record: IssueNoteDetail) =>
+    //     lotCodeMap[record.productLotId] || "N/A",
+    // },
     {
       title: "Số lượng",
       dataIndex: "quantity",
@@ -676,11 +669,21 @@ const IssueNoteTable: React.FC<IssueNoteTableProps> = ({
       key: "sellingPrice",
       render: (price: number) => `${price.toLocaleString()} VND`,
     },
+    // {
+    //   title: "Phòng kho",
+    //   key: "storageRoom",
+    //   render: (_: any, record: IssueNoteDetail) =>
+    //     lotStorageMap[record.productLotId] || "N/A",
+    // },
     {
-      title: "Phòng kho",
-      key: "storageRoom",
-      render: (_: any, record: IssueNoteDetail) =>
-        lotStorageMap[record.productLotId] || "N/A",
+      title: "Tổng tiền",
+      key: "total",
+      render: (_: any, record: any) => {
+        const quantity = record.quantity || 0;
+        const price = record.productLot?.product?.sellingPrice || 0;
+        const total = quantity * price;
+        return `${total.toLocaleString()} VND`;
+      },
     },
   ];
 

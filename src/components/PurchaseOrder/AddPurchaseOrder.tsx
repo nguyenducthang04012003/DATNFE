@@ -55,8 +55,12 @@ const PurchaseOrderModal: React.FC = () => {
   const { user } = useAuth();
   const [form] = Form.useForm();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
-  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+  const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>(
+    []
+  );
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
+    null
+  );
   const [quantity, setQuantity] = useState<number>(1);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -67,7 +71,10 @@ const PurchaseOrderModal: React.FC = () => {
 
   // Tính lại totalAmount mỗi khi selectedProducts thay đổi
   useEffect(() => {
-    const newTotalAmount = selectedProducts.reduce((sum, product) => sum + product.totalPrice, 0);
+    const newTotalAmount = selectedProducts.reduce(
+      (sum, product) => sum + product.totalPrice,
+      0
+    );
     setTotalAmount(newTotalAmount);
   }, [selectedProducts]);
 
@@ -77,14 +84,20 @@ const PurchaseOrderModal: React.FC = () => {
       const token = localStorage.getItem("accessToken") || "your-default-token";
 
       try {
-        const supplierResponse = await axios.get(`${API_BASE_URL}/Supplier/GetSupplierList`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const supplierResponse = await axios.get(
+          `${API_BASE_URL}/Supplier/GetSupplierList`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setSuppliers(supplierResponse.data.data || []);
 
-        const productResponse = await axios.get(`${API_BASE_URL}/Product/ListProduct`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const productResponse = await axios.get(
+          `${API_BASE_URL}/Product/ListProduct`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setProducts(productResponse.data.data || []);
       } catch (error) {
         console.error("Lỗi khi lấy dữ liệu:", error);
@@ -176,7 +189,9 @@ const PurchaseOrderModal: React.FC = () => {
           min={0}
           value={supplyPrice}
           onChange={(value) => handleSupplyPriceChange(record.id, value)}
-          formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+          formatter={(value) =>
+            `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+          }
           parser={(value) => value?.replace(/\$\s?|(,*)/g, "") as any}
           className="w-32"
         />
@@ -245,7 +260,9 @@ const PurchaseOrderModal: React.FC = () => {
           },
         }
       );
-      message.success(`Đơn hàng ${response.data.data.purchaseOrderCode} đã được tạo thành công!`);
+      message.success(
+        `Đơn hàng ${response.data.data.purchaseOrderCode} đã được tạo thành công!`
+      );
       form.resetFields();
       setSelectedProducts([]);
       setSelectedSupplier(null);
@@ -258,7 +275,9 @@ const PurchaseOrderModal: React.FC = () => {
   return (
     <div className="p-6 mt-[60px] w-full bg-[#fafbfe]">
       <div className="mb-6">
-        <h1 className="text-xl font-semibold text-gray-900">Tạo đơn đặt hàng (PO)</h1>
+        <h1 className="text-xl font-semibold text-gray-900">
+          Tạo đơn đặt hàng (PO)
+        </h1>
         <p className="text-sm text-gray-500">Tạo đơn đặt hàng mới</p>
       </div>
 
@@ -268,22 +287,27 @@ const PurchaseOrderModal: React.FC = () => {
             <Form.Item
               label="Nhà cung cấp"
               name="supplier"
-              rules={[{ required: true, message: "Vui lòng chọn nhà cung cấp!" }]}
+              rules={[
+                { required: true, message: "Vui lòng chọn nhà cung cấp!" },
+              ]}
             >
               <Select
                 showSearch
                 placeholder="Chọn nhà cung cấp"
                 loading={loading}
                 onChange={(value) => {
-                  const supplier = suppliers.find((s) => s.id === value) || null;
+                  const supplier =
+                    suppliers.find((s) => s.id === value) || null;
                   setSelectedSupplier(supplier);
                 }}
                 filterOption={(input, option) =>
-                  removeVietnameseTones(option?.children?.toString() || "").includes(
-                    removeVietnameseTones(input)
-                  )
+                  removeVietnameseTones(
+                    option?.children?.toString() || ""
+                  ).includes(removeVietnameseTones(input))
                 }
-                notFoundContent={suppliers.length === 0 ? "Không có dữ liệu" : null}
+                notFoundContent={
+                  suppliers.length === 0 ? "Không có dữ liệu" : null
+                }
               >
                 {suppliers.map((supplier) => (
                   <Select.Option key={supplier.id} value={supplier.id}>
@@ -299,7 +323,9 @@ const PurchaseOrderModal: React.FC = () => {
           </div>
 
           <div className="mt-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-2">Thêm sản phẩm</h2>
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">
+              Thêm sản phẩm
+            </h2>
             <div className="flex gap-4 mb-4">
               <Select
                 showSearch
@@ -313,14 +339,19 @@ const PurchaseOrderModal: React.FC = () => {
                 style={{ width: 200 }}
                 loading={loading}
                 filterOption={(input, option) =>
-                  removeVietnameseTones(option?.children?.toString() || "").includes(
-                    removeVietnameseTones(input)
-                  )
+                  removeVietnameseTones(
+                    option?.children?.toString() || ""
+                  ).includes(removeVietnameseTones(input))
                 }
-                notFoundContent={products.length === 0 ? "Không có dữ liệu" : null}
+                notFoundContent={
+                  products.length === 0 ? "Không có dữ liệu" : null
+                }
               >
                 {products.map((product) => (
-                  <Select.Option key={product.productId} value={product.productName}>
+                  <Select.Option
+                    key={product.productId}
+                    value={product.productName}
+                  >
                     {product.productName}
                   </Select.Option>
                 ))}
@@ -343,6 +374,9 @@ const PurchaseOrderModal: React.FC = () => {
             />
           </div>
 
+          <div className="text-right text-lg font-semibold mt-4">
+            Tổng giá trị đơn hàng: {totalAmount.toLocaleString("vi-VN")} VND
+          </div>
           <div className="mt-6 flex justify-end gap-4">
             <Button onClick={() => form.resetFields()}>Hủy</Button>
             <Button type="primary" htmlType="submit" loading={loading}>

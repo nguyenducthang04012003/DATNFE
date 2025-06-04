@@ -107,7 +107,11 @@ const NewOrder: React.FC = () => {
 
   useEffect(() => {
     axios
-      .get(`${API_BASE_URL}/Category/subcategory`)
+      .get(`${API_BASE_URL}/Category/subcategory`, {
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+        },
+      })
       .then((response) => {
         const data = Array.isArray(response.data)
           ? response.data
@@ -122,7 +126,11 @@ const NewOrder: React.FC = () => {
 
   useEffect(() => {
     axios
-      .get(`${API_BASE_URL}/Product/ListProductCustomer`)
+      .get(`${API_BASE_URL}/Product/ListProductCustomer`, {
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+        },
+      })
       .then(async (response) => {
         const data = Array.isArray(response.data)
           ? response.data
@@ -140,7 +148,10 @@ const NewOrder: React.FC = () => {
               const quantityResponse = await axios.get(
                 `${API_BASE_URL}/ProductLot/CheckProductQuantity/${product.productId}`,
                 {
-                  headers: { accept: "*/*" },
+                  headers: {
+                    accept: "*/*",
+                    "ngrok-skip-browser-warning": "true",
+                  },
                 }
               );
               return {
@@ -169,7 +180,11 @@ const NewOrder: React.FC = () => {
 
   useEffect(() => {
     axios
-      .get(`${API_BASE_URL}/GHN/provinces`)
+      .get(`${API_BASE_URL}/GHN/provinces`, {
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+        },
+      })
       .then((response) => {
         setProvinces(response.data.data || []);
       })
@@ -187,7 +202,11 @@ const NewOrder: React.FC = () => {
   useEffect(() => {
     if (selectedProvince) {
       axios
-        .get(`${API_BASE_URL}/GHN/districts/${selectedProvince}`)
+        .get(`${API_BASE_URL}/GHN/districts/${selectedProvince}`, {
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+          },
+        })
         .then((response) => {
           setDistricts(response.data.data || []);
           setSelectedDistrict(null);
@@ -206,7 +225,11 @@ const NewOrder: React.FC = () => {
   useEffect(() => {
     if (selectedDistrict) {
       axios
-        .get(`${API_BASE_URL}/GHN/wards/${selectedDistrict}`)
+        .get(`${API_BASE_URL}/GHN/wards/${selectedDistrict}`, {
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+          },
+        })
         .then((response) => {
           setWards(response.data.data || []);
           setSelectedWard(null);
@@ -284,8 +307,8 @@ const NewOrder: React.FC = () => {
     }
 
     const payload = {
-      from_district_id: 1542,
-      from_ward_code: "1B1507",
+      from_district_id: 1530,
+      from_ward_code: "40503",
       service_type_id: 2,
       to_district_id: selectedDistrict,
       to_ward_code: selectedWard.toString(),
@@ -298,6 +321,7 @@ const NewOrder: React.FC = () => {
         headers: {
           "Content-Type": "application/json",
           accept: "*/*",
+          "ngrok-skip-browser-warning": "true",
         },
       })
       .then((response) => {
@@ -333,10 +357,13 @@ const NewOrder: React.FC = () => {
       axios
         .post(`${API_BASE_URL}/GHN/calculate-expected-delivery-time`, null, {
           params: {
-            fromDistrictId: 1542,
-            fromWardCode: "1B1507",
+            fromDistrictId: 1530,
+            fromWardCode: "40503",
             toDistrictId: selectedDistrict,
             toWardCode: selectedWard,
+          },
+          headers: {
+            "ngrok-skip-browser-warning": "true",
           },
         })
         .then((response) => {
@@ -457,7 +484,10 @@ const NewOrder: React.FC = () => {
         `${API_BASE_URL}/Cart/AddToCart`,
         { productId: product.productId, quantity: 1 },
         {
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
         }
       )
       .then((response) => {
@@ -508,7 +538,11 @@ const NewOrder: React.FC = () => {
     }
 
     axios
-      .put(`${API_BASE_URL}/Cart/UpdateCart/${productId}/${value}`)
+      .put(`${API_BASE_URL}/Cart/UpdateCart/${productId}/${value}`, {
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+        },
+      })
       .then((response) => {
         if (response.data.success) {
           setOrderItems((prev) => {
@@ -535,7 +569,11 @@ const NewOrder: React.FC = () => {
 
   const removeItem = (productId: number) => {
     axios
-      .delete(`${API_BASE_URL}/Cart/RemoveFromCart/${productId}`)
+      .delete(`${API_BASE_URL}/Cart/RemoveFromCart/${productId}`, {
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+        },
+      })
       .then((response) => {
         if (response.data.success) {
           setOrderItems((prev) => {
@@ -636,6 +674,7 @@ const NewOrder: React.FC = () => {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
         },
       })
       .then((response) => {

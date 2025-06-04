@@ -13,17 +13,28 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (username?: string, password?: string, token?: string) => Promise<void>;
+  login: (
+    username?: string,
+    password?: string,
+    token?: string
+  ) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const apiClient = axios.create({
-  baseURL: "https://localhost:7069/api",
+  baseURL:
+    // "https://7e56-2402-800-6205-2fb2-7843-311f-f334-3e7c.ngrok-free.app/api",
+    "https://pharmadistiprobe.fun/api",
+  headers: {
+    "ngrok-skip-browser-warning": "true",
+  },
 });
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -47,7 +58,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (response.status === 200) {
-        const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+        const { accessToken, refreshToken: newRefreshToken } =
+          response.data.data;
 
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", newRefreshToken);
@@ -73,7 +85,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           originalRequest._retry = true;
           try {
             const newAccessToken = await refreshAccessToken();
-            originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+            originalRequest.headers[
+              "Authorization"
+            ] = `Bearer ${newAccessToken}`;
             return apiClient(originalRequest);
           } catch (refreshError) {
             return Promise.reject(refreshError);
@@ -88,7 +102,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const login = async (username?: string, password?: string, token?: string) => {
+  const login = async (
+    username?: string,
+    password?: string,
+    token?: string
+  ) => {
     try {
       if (token) {
         // Auto-login with stored token
@@ -98,12 +116,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const userAvatar = localStorage.getItem("userAvatar") ?? undefined;
 
         if (!userId || !userName) {
-          throw new Error("Thông tin người dùng không đầy đủ trong localStorage");
+          throw new Error(
+            "Thông tin người dùng không đầy đủ trong localStorage"
+          );
         }
 
-        const profileResponse = await apiClient.get(`/User/GetUserById/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const profileResponse = await apiClient.get(
+          `/User/GetUserById/${userId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
         const userData: User = {
           customerId: parseInt(userId),
@@ -130,7 +153,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (loginResponse.status === 200) {
-        const { accessToken, refreshToken, userId, roleName, userName, userAvatar } = loginResponse.data.data;
+        const {
+          accessToken,
+          refreshToken,
+          userId,
+          roleName,
+          userName,
+          userAvatar,
+        } = loginResponse.data.data;
 
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
@@ -139,9 +169,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem("userName", userName);
         localStorage.setItem("userAvatar", userAvatar ?? "");
 
-        const profileResponse = await apiClient.get(`/User/GetUserById/${userId}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
+        const profileResponse = await apiClient.get(
+          `/User/GetUserById/${userId}`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        );
 
         const userData: User = {
           customerId: userId,
@@ -160,7 +193,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error: any) {
       console.error("Login failed:", error);
       if (error.response?.status === 404) {
-        throw new Error("Đăng nhập thất bại. Tên đăng nhập hoặc mật khẩu không đúng!");
+        throw new Error(
+          "Đăng nhập thất bại. Tên đăng nhập hoặc mật khẩu không đúng!"
+        );
       } else if (error.response?.data?.message) {
         throw new Error(error.response.data.message);
       } else {

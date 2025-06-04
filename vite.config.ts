@@ -8,4 +8,7 @@ export default defineConfig({
     react(),
     tailwindcss(),  
   ],
+  server: {
+    allowedHosts: ['0e2a-116-110-123-21.ngrok-free.app'], // Cho phép mọi domain từ ngrok-free.app
+  }
 })

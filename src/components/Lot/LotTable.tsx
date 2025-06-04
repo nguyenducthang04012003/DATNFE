@@ -142,7 +142,8 @@ const LotTable: React.FC<LotTableProps> = ({
       const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
       // Gọi API để lấy lô thay đổi trạng thái
-      const checkResponse = await axios.put("https://localhost:7069/api/ProductLot/CheckAndUpdateExpiredLots");
+      const checkResponse = await axios.put(`${API_BASE_URL}/ProductLot/CheckAndUpdateExpiredLots`);
+
       const changedLotsToday = checkResponse.data.data || [];
 
       // Lưu vào localStorage với ngày hiện tại
@@ -233,7 +234,7 @@ const LotTable: React.FC<LotTableProps> = ({
 
     try {
       // Lấy danh sách mã lô
-      const lotResponse = await axios.get("https://localhost:7069/api/Lot");
+      const lotResponse = await axios.get(`${API_BASE_URL}/Lot`);
       let lotCodesArray: string[] = [];
       if (Array.isArray(lotResponse.data)) {
         lotCodesArray = lotResponse.data.map((lot: Lot) => lot.lotCode || `Lô ${lot.lotId}`);
@@ -254,7 +255,8 @@ const LotTable: React.FC<LotTableProps> = ({
         const { date, lots } = JSON.parse(storedData);
         if (date === today && Array.isArray(lots) && lots.length > 0) {
           // Lấy danh sách sản phẩm để lấy unit
-          const productResponse = await axios.get("https://localhost:7069/api/Product/ListProduct");
+          const productResponse = await axios.get(`${API_BASE_URL}/Product/ListProduct`);
+
           const products = productResponse.data.data || [];
           const productMap = products.reduce((acc: { [key: number]: Product }, product: Product) => {
             acc[product.productId] = product;
@@ -398,8 +400,8 @@ const LotTable: React.FC<LotTableProps> = ({
   const fetchLotDetail = async (id: number) => {
     try {
       const [lotResponse, productResponse] = await Promise.all([
-        axios.get(`https://localhost:7069/api/ProductLot/${id}`),
-        axios.get("https://localhost:7069/api/Product/ListProduct"),
+        axios.get(`${API_BASE_URL}/ProductLot/${id}`),
+        axios.get(`${API_BASE_URL}/Product/ListProduct`),
       ]);
 
       const lot = lotResponse.data.data;

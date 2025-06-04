@@ -49,7 +49,7 @@ const OrderListPage: React.FC<OrderListPageProps> = ({ handleChangePage }) => {
         const response = await axios.get(
           `${API_BASE_URL}/Order/GetOrderByCustomerId?customerId=${user.customerId}`,
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${token}`, "ngrok-skip-browser-warning": "true", },
           }
         );
         setOrders(response.data.data || []);

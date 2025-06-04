@@ -462,117 +462,117 @@ const ReceivedNoteTable: React.FC<ReceivedNoteTableProps> = ({
     }
   };
 
-  const exportToExcelSingleNote = async (receiveNoteId: number) => {
-    const note = filteredNotes.find((note) => note.receiveNoteId === receiveNoteId);
-    if (!note) {
-      notification.error({
-        message: "Lỗi",
-        description: "Không tìm thấy phiếu để xuất Excel.",
-      });
-      return;
-    }
+  // const exportToExcelSingleNote = async (receiveNoteId: number) => {
+  //   const note = filteredNotes.find((note) => note.receiveNoteId === receiveNoteId);
+  //   if (!note) {
+  //     notification.error({
+  //       message: "Lỗi",
+  //       description: "Không tìm thấy phiếu để xuất Excel.",
+  //     });
+  //     return;
+  //   }
 
-    try {
-      const token = localStorage.getItem("accessToken");
-      const response = await axios.get(`${API_BASE_URL}/ReceivedNote/${note.receiveNoteId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const { data } = response.data;
-      const details = data.receivedNoteDetails || [];
-      const totalAmount = details.reduce(
-        (sum: number, detail: ReceivedNoteDetail) => sum + detail.totalAmount,
-        0
-      );
-      const totalQuantity = details.reduce(
-        (sum: number, detail: ReceivedNoteDetail) => sum + detail.actualReceived,
-        0
-      );
-      const storageRoomName = await fetchStorageRoomForLots(details);
+  //   try {
+  //     const token = localStorage.getItem("accessToken");
+  //     const response = await axios.get(`${API_BASE_URL}/ReceivedNote/${note.receiveNoteId}`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  //     const { data } = response.data;
+  //     const details = data.receivedNoteDetails || [];
+  //     const totalAmount = details.reduce(
+  //       (sum: number, detail: ReceivedNoteDetail) => sum + detail.totalAmount,
+  //       0
+  //     );
+  //     const totalQuantity = details.reduce(
+  //       (sum: number, detail: ReceivedNoteDetail) => sum + detail.actualReceived,
+  //       0
+  //     );
+  //     const storageRoomName = await fetchStorageRoomForLots(details);
 
-      // Tạo dữ liệu cho Excel
-      const excelData = [
-        ["Đơn vị: Công ty cổ phần dược phẩm Vinh Nguyên"],
-        ["Bộ phận: Kho vận"],
-        ["Mẫu số 01 - VT"],
-        ["(Ban hành theo Thông tư số 200/2014/TT-BTC Ngày 22/12/2014 của Bộ Tài chính)"],
-        [],
-        ["PHIẾU NHẬP KHO"],
-        [`Ngày ${new Date(note.createdDate).getDate()} tháng ${new Date(note.createdDate).getMonth() + 1} năm ${new Date(note.createdDate).getFullYear()}`],
-        [`Số: ${note.receiveNotesCode}`],
-        ["Nợ: 156", "", "Có: 331"],
-        [],
-        [`Họ và tên người giao: ${note.purchaseOrder?.supplier?.supplierName || "Không xác định"}`],
-        [`Theo: Đơn mua hàng số ${note.purchaseOrder?.purchaseOrderCode || "N/A"} ngày ${note.purchaseOrder?.createDate ? new Date(note.purchaseOrder.createDate).toLocaleDateString("vi-VN") : "N/A"} của Công ty cổ phần dược phẩm Vinh Nguyên`],
-        [`Nhập tại kho: ${storageRoomName}`],
-        [],
-        ["STT", "Tên, nhãn hiệu, quy cách, phẩm chất vật tư, dụng cụ, sản phẩm, hàng hoá", "Mã số", "Đơn vị tính", "Số lượng Theo chứng từ", "Số lượng Thực nhập", "Đơn giá", "Thành tiền"],
-        ...details.map((detail: ReceivedNoteDetail, index: number) => [
-          index + 1,
-          `${detail.productName} (Lô: ${detail.lotCode})`,
-          detail.productCode,
-          detail.unit,
-          detail.actualReceived,
-          detail.actualReceived,
-          detail.unitPrice,
-          detail.totalAmount,
-        ]),
-        ["", "Cộng", "x", "x", totalQuantity, totalQuantity, "x", totalAmount],
-        [],
-        [`Tổng số tiền (viết bằng chữ): ${numberToWords(totalAmount)}`],
-        [`Số chứng từ gốc kèm theo: ${details[0]?.documentNumber || "Không có"}`],
-        [],
-        [`Ngày ${new Date(note.createdDate).getDate()} tháng ${new Date(note.createdDate).getMonth() + 1} năm ${new Date(note.createdDate).getFullYear()}`],
-        [],
-        ["Người lập phiếu", "", "Người giao hàng", "", "Thủ kho", "", "Kế toán trưởng"],
-        ["(Ký, họ tên)", "", "(Ký, họ tên)", "", "(Ký, họ tên)", "", "(Ký, họ tên)"],
-      ];
+  //     // Tạo dữ liệu cho Excel
+  //     const excelData = [
+  //       ["Đơn vị: Công ty cổ phần dược phẩm Vinh Nguyên"],
+  //       ["Bộ phận: Kho vận"],
+  //       ["Mẫu số 01 - VT"],
+  //       ["(Ban hành theo Thông tư số 200/2014/TT-BTC Ngày 22/12/2014 của Bộ Tài chính)"],
+  //       [],
+  //       ["PHIẾU NHẬP KHO"],
+  //       [`Ngày ${new Date(note.createdDate).getDate()} tháng ${new Date(note.createdDate).getMonth() + 1} năm ${new Date(note.createdDate).getFullYear()}`],
+  //       [`Số: ${note.receiveNotesCode}`],
+  //       ["Nợ: 156", "", "Có: 331"],
+  //       [],
+  //       [`Họ và tên người giao: ${note.purchaseOrder?.supplier?.supplierName || "Không xác định"}`],
+  //       [`Theo: Đơn mua hàng số ${note.purchaseOrder?.purchaseOrderCode || "N/A"} ngày ${note.purchaseOrder?.createDate ? new Date(note.purchaseOrder.createDate).toLocaleDateString("vi-VN") : "N/A"} của Công ty cổ phần dược phẩm Vinh Nguyên`],
+  //       [`Nhập tại kho: ${storageRoomName}`],
+  //       [],
+  //       ["STT", "Tên, nhãn hiệu, quy cách, phẩm chất vật tư, dụng cụ, sản phẩm, hàng hoá", "Mã số", "Đơn vị tính", "Số lượng Theo chứng từ", "Số lượng Thực nhập", "Đơn giá", "Thành tiền"],
+  //       ...details.map((detail: ReceivedNoteDetail, index: number) => [
+  //         index + 1,
+  //         `${detail.productName} (Lô: ${detail.lotCode})`,
+  //         detail.productCode,
+  //         detail.unit,
+  //         detail.actualReceived,
+  //         detail.actualReceived,
+  //         detail.unitPrice,
+  //         detail.totalAmount,
+  //       ]),
+  //       ["", "Cộng", "x", "x", totalQuantity, totalQuantity, "x", totalAmount],
+  //       [],
+  //       [`Tổng số tiền (viết bằng chữ): ${numberToWords(totalAmount)}`],
+  //       [`Số chứng từ gốc kèm theo: ${details[0]?.documentNumber || "Không có"}`],
+  //       [],
+  //       [`Ngày ${new Date(note.createdDate).getDate()} tháng ${new Date(note.createdDate).getMonth() + 1} năm ${new Date(note.createdDate).getFullYear()}`],
+  //       [],
+  //       ["Người lập phiếu", "", "Người giao hàng", "", "Thủ kho", "", "Kế toán trưởng"],
+  //       ["(Ký, họ tên)", "", "(Ký, họ tên)", "", "(Ký, họ tên)", "", "(Ký, họ tên)"],
+  //     ];
 
-      // Tạo worksheet
-      const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+  //     // Tạo worksheet
+  //     const worksheet = XLSX.utils.aoa_to_sheet(excelData);
 
-      // Định dạng cột
-      worksheet["!cols"] = [
-        { wch: 5 },  // STT
-        { wch: 40 }, // Tên, nhãn hiệu, ...
-        { wch: 15 }, // Mã số
-        { wch: 10 }, // Đơn vị tính
-        { wch: 15 }, // Số lượng Theo chứng từ
-        { wch: 15 }, // Số lượng Thực nhập
-        { wch: 15 }, // Đơn giá
-        { wch: 15 }, // Thành tiền
-      ];
+  //     // Định dạng cột
+  //     worksheet["!cols"] = [
+  //       { wch: 5 },  // STT
+  //       { wch: 40 }, // Tên, nhãn hiệu, ...
+  //       { wch: 15 }, // Mã số
+  //       { wch: 10 }, // Đơn vị tính
+  //       { wch: 15 }, // Số lượng Theo chứng từ
+  //       { wch: 15 }, // Số lượng Thực nhập
+  //       { wch: 15 }, // Đơn giá
+  //       { wch: 15 }, // Thành tiền
+  //     ];
 
-      // Gộp ô cho tiêu đề và các trường
-      worksheet["!merges"] = [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } }, // Đơn vị
-        { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } }, // Bộ phận
-        { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } }, // Mẫu số
-        { s: { r: 3, c: 0 }, e: { r: 3, c: 7 } }, // Thông tư
-        { s: { r: 5, c: 0 }, e: { r: 5, c: 7 } }, // PHIẾU NHẬP KHO
-        { s: { r: 6, c: 0 }, e: { r: 6, c: 7 } }, // Ngày
-        { s: { r: 7, c: 0 }, e: { r: 7, c: 7 } }, // Số
-        { s: { r: 10, c: 0 }, e: { r: 10, c: 7 } }, // Người giao
-        { s: { r: 11, c: 0 }, e: { r: 11, c: 7 } }, // Theo
-        { s: { r: 12, c: 0 }, e: { r: 12, c: 7 } }, // Nhập tại kho
-        { s: { r: details.length + 15, c: 0 }, e: { r: details.length + 15, c: 7 } }, // Tổng số tiền
-        { s: { r: details.length + 16, c: 0 }, e: { r: details.length + 16, c: 7 } }, // Số chứng từ
-        { s: { r: details.length + 18, c: 0 }, e: { r: details.length + 18, c: 7 } }, // Ngày
-      ];
+  //     // Gộp ô cho tiêu đề và các trường
+  //     worksheet["!merges"] = [
+  //       { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } }, // Đơn vị
+  //       { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } }, // Bộ phận
+  //       { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } }, // Mẫu số
+  //       { s: { r: 3, c: 0 }, e: { r: 3, c: 7 } }, // Thông tư
+  //       { s: { r: 5, c: 0 }, e: { r: 5, c: 7 } }, // PHIẾU NHẬP KHO
+  //       { s: { r: 6, c: 0 }, e: { r: 6, c: 7 } }, // Ngày
+  //       { s: { r: 7, c: 0 }, e: { r: 7, c: 7 } }, // Số
+  //       { s: { r: 10, c: 0 }, e: { r: 10, c: 7 } }, // Người giao
+  //       { s: { r: 11, c: 0 }, e: { r: 11, c: 7 } }, // Theo
+  //       { s: { r: 12, c: 0 }, e: { r: 12, c: 7 } }, // Nhập tại kho
+  //       { s: { r: details.length + 15, c: 0 }, e: { r: details.length + 15, c: 7 } }, // Tổng số tiền
+  //       { s: { r: details.length + 16, c: 0 }, e: { r: details.length + 16, c: 7 } }, // Số chứng từ
+  //       { s: { r: details.length + 18, c: 0 }, e: { r: details.length + 18, c: 7 } }, // Ngày
+  //     ];
 
-      // Tạo workbook và lưu file
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, `PhieuNhap_${note.receiveNotesCode}`);
-      XLSX.writeFile(workbook, `PhieuNhap_${note.receiveNotesCode}.xlsx`);
-    } catch (error) {
-      console.error(`Lỗi khi lấy chi tiết cho phiếu ${note.receiveNoteId}:`, error);
-      notification.error({
-        message: "Lỗi",
-        description: "Lỗi khi xuất Excel chi tiết phiếu.",
-      });
-    }
-  };
+  //     // Tạo workbook và lưu file
+  //     const workbook = XLSX.utils.book_new();
+  //     XLSX.utils.book_append_sheet(workbook, worksheet, `PhieuNhap_${note.receiveNotesCode}`);
+  //     XLSX.writeFile(workbook, `PhieuNhap_${note.receiveNotesCode}.xlsx`);
+  //   } catch (error) {
+  //     console.error(`Lỗi khi lấy chi tiết cho phiếu ${note.receiveNoteId}:`, error);
+  //     notification.error({
+  //       message: "Lỗi",
+  //       description: "Lỗi khi xuất Excel chi tiết phiếu.",
+  //     });
+  //   }
+  // };
 
   const columns = [
     { title: "Mã Phiếu", dataIndex: "receiveNotesCode", key: "receiveNotesCode" },
@@ -611,12 +611,12 @@ const ReceivedNoteTable: React.FC<ReceivedNoteTableProps> = ({
             label: "In phiếu",
             onClick: () => printTable(record.receiveNoteId),
           },
-          {
-            key: "export",
-            icon: <FileExcelOutlined />,
-            label: "Xuất Excel",
-            onClick: () => exportToExcelSingleNote(record.receiveNoteId),
-          },
+          // {
+          //   key: "export",
+          //   icon: <FileExcelOutlined />,
+          //   label: "Xuất Excel",
+          //   onClick: () => exportToExcelSingleNote(record.receiveNoteId),
+          // },
         ];
 
         return (

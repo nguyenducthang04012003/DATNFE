@@ -59,7 +59,10 @@ const AddLot: React.FC<AddLotProps> = ({ handleChangePage }) => {
         const response = await axios.get(
           `${API_BASE_URL}/Product/ListProduct`,
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "ngrok-skip-browser-warning": "true",
+            },
           }
         );
         setProducts(response.data.data || []);
@@ -273,16 +276,12 @@ const AddLot: React.FC<AddLotProps> = ({ handleChangePage }) => {
         storageRoomId: product.storageRoomId,
       }));
 
-      const response = await axios.post(
-        `${API_BASE_URL}/ProductLot`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axios.post(`${API_BASE_URL}/ProductLot`, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       message.success(
         response.data.message || "Lô và sản phẩm đã được tạo thành công!"
