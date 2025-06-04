@@ -63,6 +63,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSidebar, handleChangePage }) =>
       case "Đơn đặt hàng":
         return role === "WarehouseManager" || role === "Director";
       case "Lô hàng":
+        return role === "WarehouseManager" || role === "Director";
       case "Phiếu nhập kho":
       case "Phiếu xuất kho":
       case "Phiếu kiểm kê":
@@ -97,10 +98,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSidebar, handleChangePage }) =>
         return items.filter(item =>
           item === "Danh sách đơn đặt hàng(PO)" ? (role === "WarehouseManager" || role === "Director") : role === "Director"
         );
-      case "Lô hàng":
-        return items.filter(item => item === "Tạo lô hàng" ? role === "WarehouseManager" : true);
       case "Phiếu nhập kho":
-        return items.filter(item => item === "Tạo phiếu nhập kho" ? role === "WarehouseManager" : true);
+        return items.filter(item => item === "Tạo phiếu nhập kho" ? (role === "WarehouseManager" || role === "Director") : true);
       case "Kho":
         return items.filter(item => item === "Tạo kho mới" ? role === "Director" : true);
       case "Đơn hàng":
