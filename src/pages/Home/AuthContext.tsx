@@ -24,9 +24,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const apiClient = axios.create({
-  baseURL:
-    // "https://7e56-2402-800-6205-2fb2-7843-311f-f334-3e7c.ngrok-free.app/api",
-    "https://pharmadistiprobe.fun/api",
+  baseURL: "https://pharmadistiprobe.fun/api",
   headers: {
     "ngrok-skip-browser-warning": "true",
   },

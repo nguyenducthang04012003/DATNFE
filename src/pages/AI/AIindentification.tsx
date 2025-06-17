@@ -113,9 +113,6 @@ const AIImageAnalyzer: React.FC<AIImageAnalyzerProps> = ({
         const weightRaw = extractField("Trọng lượng");
         const volumeRaw = extractField("Dung tích");
 
-        // const existsMatch = gptContent.match(
-        //   /existsInDatabase\s*[:\-]?\s*(true|false)/i
-        // );
         const existsMatch = gptContent.match(
           /existsInDatabase.*?[:\s]*?(true|false)/i
         );

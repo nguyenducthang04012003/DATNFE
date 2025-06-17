@@ -85,7 +85,7 @@ const PurchaseOrderModal: React.FC = () => {
 
       try {
         const supplierResponse = await axios.get(
-          `${API_BASE_URL}/Supplier/GetSupplierList`,
+          `${API_BASE_URL}/Supplier/GetSupplierListActive`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

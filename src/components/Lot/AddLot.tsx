@@ -67,7 +67,7 @@ const AddLot: React.FC<AddLotProps> = ({ handleChangePage }) => {
         );
         setProducts(response.data.data || []);
       } catch (error) {
-        // console.error("Lỗi khi lấy danh sách sản phẩm:", error);
+        console.error("Lỗi khi lấy danh sách sản phẩm:", error);
         // message.error("Không thể tải danh sách sản phẩm.");
       }
     };
@@ -89,7 +89,7 @@ const AddLot: React.FC<AddLotProps> = ({ handleChangePage }) => {
           response.data.data.filter((room: StorageRoom) => room.status) || []
         );
       } catch (error) {
-        // console.error("Lỗi khi lấy danh sách phòng kho:", error);
+        console.error("Lỗi khi lấy danh sách phòng kho:", error);
         // message.error("Không thể tải danh sách phòng kho.");
       }
     };
