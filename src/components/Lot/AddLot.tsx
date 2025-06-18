@@ -8,8 +8,17 @@ interface AddLotProps {
 }
 
 interface Product {
-  productId: number;
-  productName: string;
+  purchaseOrderId: number;
+  purchaseOrderCode: string;
+  totalAmount: number;
+  purchaseOrdersDetails: {
+    supplyPrice: string;
+    quantity: number;
+    product: {
+      productId: number;
+      productName: string;
+    };
+  }[];
 }
 
 interface StorageRoom {
@@ -20,6 +29,7 @@ interface StorageRoom {
 
 interface SelectedProduct {
   id: string;
+  productId: number;
   name: string;
   quantity: number;
   supplyPrice: string;
@@ -57,7 +67,7 @@ const AddLot: React.FC<AddLotProps> = ({ handleChangePage }) => {
       try {
         const token = localStorage.getItem("accessToken");
         const response = await axios.get(
-          `${API_BASE_URL}/Product/ListProduct`,
+          `${API_BASE_URL}/PurchaseOrders/GetPurchaseOrders`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -97,8 +107,8 @@ const AddLot: React.FC<AddLotProps> = ({ handleChangePage }) => {
   }, []);
 
   const productOptions = products.map((p) => ({
-    value: String(p.productId),
-    label: p.productName,
+    value: String(p.purchaseOrderId),
+    label: p.purchaseOrderCode,
   }));
 
   const storageRoomOptions = storageRooms.map((room) => ({
@@ -107,25 +117,27 @@ const AddLot: React.FC<AddLotProps> = ({ handleChangePage }) => {
   }));
 
   const handleSelectProduct = (value: string) => {
-    const product = products.find((p) => String(p.productId) === value);
-    if (
-      product &&
-      !selectedProducts.some((p) => p.id === String(product.productId))
-    ) {
-      setSelectedProducts([
-        ...selectedProducts,
-        {
-          id: String(product.productId),
-          name: product.productName,
-          quantity: 0,
-          supplyPrice: "",
-          manufacturedDate: "",
-          expiredDate: "",
-          storageRoomId: null,
-          OrderQuantity: 0,
-        },
-      ]);
-    }
+    const product = products.find((p) => String(p.purchaseOrderId) === value);
+    if (!product) return;
+
+    const newProducts = product.purchaseOrdersDetails
+      .filter((detail) => {
+        const rowId = `${product.purchaseOrderId}-${detail.product.productName}`;
+        return !selectedProducts.some((p) => p.id === rowId);
+      })
+      .map((detail) => ({
+        id: `${product.purchaseOrderId}-${detail.product.productName}`, // composite key
+        productId: detail.product.productId,
+        name: detail.product.productName,
+        quantity: 0,
+        supplyPrice: detail.supplyPrice,
+        manufacturedDate: "",
+        expiredDate: "",
+        storageRoomId: null,
+        OrderQuantity: detail.quantity,
+      }));
+
+    setSelectedProducts((prev) => [...prev, ...newProducts]);
   };
 
   const handleRemoveProduct = (id: string) => {
@@ -186,9 +198,10 @@ const AddLot: React.FC<AddLotProps> = ({ handleChangePage }) => {
     for (const product of selectedProducts) {
       // Check for required fields
       if (
-        !product.supplyPrice.trim() ||
-        !product.manufacturedDate ||
-        !product.expiredDate ||
+        product.supplyPrice === undefined ||
+        product.supplyPrice === null ||
+        product.manufacturedDate === "" ||
+        product.expiredDate === "" ||
         !product.storageRoomId ||
         product.OrderQuantity <= 0
       ) {
@@ -266,7 +279,7 @@ const AddLot: React.FC<AddLotProps> = ({ handleChangePage }) => {
       // Step 2: Save products to the lot
       const payload = selectedProducts.map((product) => ({
         lotId: lotId,
-        productId: Number(product.id),
+        productId: product.productId,
         quantity: product.quantity,
         manufacturedDate: new Date(product.manufacturedDate).toISOString(),
         expiredDate: new Date(product.expiredDate).toISOString(),
@@ -275,6 +288,8 @@ const AddLot: React.FC<AddLotProps> = ({ handleChangePage }) => {
         status: 1,
         storageRoomId: product.storageRoomId,
       }));
+      console.log("Product to save:", selectedProducts);
+
 
       const response = await axios.post(`${API_BASE_URL}/ProductLot`, payload, {
         headers: {
@@ -289,12 +304,12 @@ const AddLot: React.FC<AddLotProps> = ({ handleChangePage }) => {
       handleChangePage("Danh sách lô hàng");
     } catch (error: any) {
       console.error("Lỗi khi lưu lô và sản phẩm:", error);
-      // const errorMessage =
-      //   error.response?.data?.message ||
-      //   error.response?.data?.errors?.[0] ||
-      //   "Không thể tạo lô hoặc thêm sản phẩm.";
-      // message.error(errorMessage);
-      // setError(errorMessage);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.errors?.[0] ||
+        "Không thể tạo lô hoặc thêm sản phẩm.";
+      message.error(errorMessage);
+      setError(errorMessage);
     }
   };
 
@@ -307,6 +322,7 @@ const AddLot: React.FC<AddLotProps> = ({ handleChangePage }) => {
       key: "OrderQuantity",
       render: (_: any, record: SelectedProduct) => (
         <Input
+          disabled
           type="number"
           min={0}
           value={record.OrderQuantity}
@@ -327,18 +343,21 @@ const AddLot: React.FC<AddLotProps> = ({ handleChangePage }) => {
       dataIndex: "supplyPrice",
       key: "supplyPrice",
       render: (_: any, record: SelectedProduct) => (
-        <Input
-          type="number"
-          min={0}
-          value={record.supplyPrice}
-          onChange={(e) =>
-            setSelectedProducts((prev) =>
-              prev.map((p) =>
-                p.id === record.id ? { ...p, supplyPrice: e.target.value } : p
+        <>
+          <Input
+            disabled
+            type="number"
+            min={0}
+            value={record.supplyPrice}
+            onChange={(e) =>
+              setSelectedProducts((prev) =>
+                prev.map((p) =>
+                  p.id === record.id ? { ...p, supplyPrice: e.target.value } : p
+                )
               )
-            )
-          }
-        />
+            }
+          />
+        </>
       ),
     },
     {
@@ -390,9 +409,10 @@ const AddLot: React.FC<AddLotProps> = ({ handleChangePage }) => {
           options={storageRoomOptions}
           onChange={(value) =>
             setSelectedProducts((prev) =>
-              prev.map((p) =>
-                p.id === record.id ? { ...p, storageRoomId: value } : p
-              )
+              prev.map((p) => ({
+                ...p,
+                storageRoomId: value, // Gán giá trị chung cho tất cả
+              }))
             )
           }
           style={{ width: "100%" }}
@@ -440,12 +460,12 @@ const AddLot: React.FC<AddLotProps> = ({ handleChangePage }) => {
 
         {isLotCreated && (
           <>
-            <Form.Item label="Sản phẩm" required>
+            <Form.Item label="Mã đơn hàng" required>
               <Select
                 showSearch
                 options={productOptions}
                 onChange={handleSelectProduct}
-                placeholder="Chọn hoặc tìm kiếm sản phẩm..."
+                placeholder="Chọn hoặc tìm kiếm mã đơn hàng..."
                 style={{ width: "100%" }}
                 filterOption={(input, option) =>
                   removeVietnameseDiacritics(option?.label ?? "")
