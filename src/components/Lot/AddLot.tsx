@@ -290,7 +290,6 @@ const AddLot: React.FC<AddLotProps> = ({ handleChangePage }) => {
       }));
       console.log("Product to save:", selectedProducts);
 
-
       const response = await axios.post(`${API_BASE_URL}/ProductLot`, payload, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -460,12 +459,12 @@ const AddLot: React.FC<AddLotProps> = ({ handleChangePage }) => {
 
         {isLotCreated && (
           <>
-            <Form.Item label="Mã đơn hàng" required>
+            <Form.Item label="Mã đơn đặt hàng" required>
               <Select
                 showSearch
                 options={productOptions}
                 onChange={handleSelectProduct}
-                placeholder="Chọn hoặc tìm kiếm mã đơn hàng..."
+                placeholder="Chọn hoặc tìm kiếm mã đơn đặt hàng..."
                 style={{ width: "100%" }}
                 filterOption={(input, option) =>
                   removeVietnameseDiacritics(option?.label ?? "")

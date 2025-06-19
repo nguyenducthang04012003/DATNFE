@@ -65,7 +65,7 @@ interface OrderTableProps {
   handleChangePage: (page: string, orderId?: number) => void;
 }
 
-const OrderTableForWarehouseManager: React.FC<OrderTableProps> = ({  }) => {
+const OrderTableForWarehouseManager: React.FC<OrderTableProps> = ({}) => {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
@@ -79,12 +79,17 @@ const OrderTableForWarehouseManager: React.FC<OrderTableProps> = ({  }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem("accessToken");
-      const response = await axios.get(`${API_BASE_URL}/Order/GetOrderToCreateIssueNoteList`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const filteredOrders = response.data.data.filter((order: Order) => order.assignTo === user?.customerId);
+      const response = await axios.get(
+        `${API_BASE_URL}/Order/GetOrderToCreateIssueNoteList`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const filteredOrders = response.data.data.filter(
+        (order: Order) => order.assignTo === user?.customerId
+      );
       setOrders(filteredOrders || []);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách đơn hàng:", error);
@@ -97,12 +102,15 @@ const OrderTableForWarehouseManager: React.FC<OrderTableProps> = ({  }) => {
   const fetchOrderDetails = async (orderId: number) => {
     try {
       const token = localStorage.getItem("accessToken");
-      const response = await axios.get(`${API_BASE_URL}/Order/GetOrdersDetailByOrderId/${orderId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          accept: "*/*",
-        },
-      });
+      const response = await axios.get(
+        `${API_BASE_URL}/Order/GetOrdersDetailByOrderId/${orderId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            accept: "*/*",
+          },
+        }
+      );
       const details: OrderDetail[] = response.data.data || [];
       setOrderDetails(details);
       setIsDetailModalOpen(true);
@@ -121,7 +129,8 @@ const OrderTableForWarehouseManager: React.FC<OrderTableProps> = ({  }) => {
   const handleCreateIssueNote = async (orderId: number) => {
     Modal.confirm({
       title: "Tạo phiếu xuất kho",
-      content: "Bạn có chắc chắn muốn tạo phiếu xuất kho cho đơn hàng này không?",
+      content:
+        "Bạn có chắc chắn muốn tạo phiếu xuất kho cho đơn hàng này không?",
       okText: "Xác nhận",
       cancelText: "Hủy",
       onOk: async () => {
@@ -139,7 +148,9 @@ const OrderTableForWarehouseManager: React.FC<OrderTableProps> = ({  }) => {
           );
           if (response.data.data) {
             message.success("Tạo phiếu xuất kho thành công!");
-            setOrders((prev) => prev.filter((order) => order.orderId !== orderId));
+            setOrders((prev) =>
+              prev.filter((order) => order.orderId !== orderId)
+            );
           } else {
             message.error("Không thể tạo phiếu xuất kho!");
           }
@@ -148,7 +159,9 @@ const OrderTableForWarehouseManager: React.FC<OrderTableProps> = ({  }) => {
           if (error.response?.status === 404) {
             message.error("Đơn hàng không tồn tại!");
           } else {
-            message.error(error.response?.data?.message || "Lỗi khi tạo phiếu xuất kho!");
+            message.error(
+              error.response?.data?.message || "Lỗi khi tạo phiếu xuất kho!"
+            );
           }
         }
       },
@@ -167,7 +180,8 @@ const OrderTableForWarehouseManager: React.FC<OrderTableProps> = ({  }) => {
       title: "Người xác nhận",
       dataIndex: "confirmBy",
       key: "confirmBy",
-      render: (confirmBy: Order["confirmBy"]) => `${confirmBy.firstName.trim()} ${confirmBy.lastName}`,
+      render: (confirmBy: Order["confirmBy"]) =>
+        `${confirmBy.firstName} ${confirmBy.lastName}`,
     },
     {
       title: "Ngày tạo",
@@ -189,7 +203,15 @@ const OrderTableForWarehouseManager: React.FC<OrderTableProps> = ({  }) => {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
-      render: (status: number) => ["Hủy", "Đang chờ thanh toán", "Đang chờ xác nhận", "Xác nhận", "Vận chuyển", "Hoàn thành"][status],
+      render: (status: number) =>
+        [
+          "Hủy",
+          "Đang chờ thanh toán",
+          "Đang chờ xác nhận",
+          "Xác nhận",
+          "Vận chuyển",
+          "Hoàn thành",
+        ][status],
     },
     {
       title: "",
@@ -227,8 +249,17 @@ const OrderTableForWarehouseManager: React.FC<OrderTableProps> = ({  }) => {
   ];
 
   const detailColumns = [
-    { title: "Tên sản phẩm", dataIndex: ["product", "productName"], key: "productName" },
-    { title: "Đơn vị tính", dataIndex: ["product", "unit"], key: "unit", render: (unit: string) => unit || "N/A" },
+    {
+      title: "Tên sản phẩm",
+      dataIndex: ["product", "productName"],
+      key: "productName",
+    },
+    {
+      title: "Đơn vị tính",
+      dataIndex: ["product", "unit"],
+      key: "unit",
+      render: (unit: string) => unit || "N/A",
+    },
     { title: "Số lượng", dataIndex: "quantity", key: "quantity" },
     {
       title: "Thuế (%VAT)",
@@ -237,7 +268,7 @@ const OrderTableForWarehouseManager: React.FC<OrderTableProps> = ({  }) => {
       render: (vat: number) => (vat != null ? `${vat}%` : "N/A"),
     },
     {
-      title: "Đơn giá (VND)" ,
+      title: "Đơn giá (VND)",
       dataIndex: ["product", "sellingPrice"],
       key: "sellingPrice",
       render: (price: number) => price.toLocaleString("vi-VN"),
@@ -253,14 +284,18 @@ const OrderTableForWarehouseManager: React.FC<OrderTableProps> = ({  }) => {
       key: "deliveryFee",
       render: () => {
         const deliveryFee = selectedOrder?.deliveryFee ?? 0;
-        return deliveryFee != null ? `${deliveryFee.toLocaleString("vi-VN")} ` : "N/A";
+        return deliveryFee != null
+          ? `${deliveryFee.toLocaleString("vi-VN")} `
+          : "N/A";
       },
     },
   ];
 
   return (
     <div className="bg-white p-6 rounded-lg shadow">
-      <h2 className="text-xl font-semibold mb-4">Danh sách đơn hàng cần tạo phiếu xuất kho</h2>
+      <h2 className="text-xl font-semibold mb-4">
+        Danh sách đơn hàng cần tạo phiếu xuất kho
+      </h2>
       <Table
         columns={columns}
         dataSource={orders}

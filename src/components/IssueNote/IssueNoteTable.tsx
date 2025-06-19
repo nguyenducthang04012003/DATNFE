@@ -56,6 +56,7 @@ interface Product {
   vat: number;
   storageconditions: number;
   weight: number;
+  storageRoomName: string;
 }
 
 interface ProductLot {
@@ -669,12 +670,12 @@ const IssueNoteTable: React.FC<IssueNoteTableProps> = ({
       key: "sellingPrice",
       render: (price: number) => `${price.toLocaleString()} VND`,
     },
-    // {
-    //   title: "Phòng kho",
-    //   key: "storageRoom",
-    //   render: (_: any, record: IssueNoteDetail) =>
-    //     lotStorageMap[record.productLotId] || "N/A",
-    // },
+    {
+      title: "Phòng kho",
+      dataIndex: ["productLot", "storageRoomName"],
+      key: "storageRoomName",
+      render: (text: string) => text || "Không có dữ liệu",
+    },
     {
       title: "Tổng tiền",
       key: "total",
