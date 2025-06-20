@@ -532,13 +532,13 @@ const Dashboard: React.FC = () => {
               <Chart options={productRevenueChartOptions} series={productRevenueChartSeries} type="bar" height={280} />
             )}
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm">
+          {/* <div className="bg-white p-4 rounded-lg shadow-sm">
             {filteredSuppliers.length === 0 || filteredSuppliers.every(s => s.amountPaid === 0) ? (
               <div className="text-center text-gray-500">Không có dữ liệu nhà cung cấp</div>
             ) : (
               <Chart options={supplierChartOptions} series={supplierChartSeries} type="bar" height={280} />
             )}
-          </div>
+          </div> */}
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm mb-6">

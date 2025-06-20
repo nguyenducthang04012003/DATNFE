@@ -1,6 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { Table, Select, Button, Modal, Collapse, Dropdown, Menu, message, Input, DatePicker } from "antd";
-import { MoreOutlined, EyeOutlined, CheckOutlined, FilterOutlined, SearchOutlined, CloseOutlined } from "@ant-design/icons";
+import {
+  Table,
+  Select,
+  Button,
+  Modal,
+  Collapse,
+  Dropdown,
+  Menu,
+  message,
+  Input,
+  DatePicker,
+} from "antd";
+import {
+  MoreOutlined,
+  EyeOutlined,
+  CheckOutlined,
+  FilterOutlined,
+  SearchOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useAuth } from "../../pages/Home/AuthContext";
@@ -68,8 +86,16 @@ const OrderTableForSalesManager: React.FC<OrderTableProps> = ({ orders }) => {
   const [priceRange, setPriceRange] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const { user } = useAuth();
-  const orderStatuses = ["Hủy", "Đang chờ Thanh Toán", "Đang chờ xác nhận", "Xác nhận", "Vận chuyển", "Hoàn thành"];
-  const accessToken = Cookies.get("token") || localStorage.getItem("accessToken");
+  const orderStatuses = [
+    "Hủy",
+    "Đang chờ Thanh Toán",
+    "Đang chờ xác nhận",
+    "Xác nhận",
+    "Vận chuyển",
+    "Hoàn thành",
+  ];
+  const accessToken =
+    Cookies.get("token") || localStorage.getItem("accessToken");
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -92,7 +118,9 @@ const OrderTableForSalesManager: React.FC<OrderTableProps> = ({ orders }) => {
     if (searchTerm.trim()) {
       const normalizedSearch = removeVietnameseTones(searchTerm.toLowerCase());
       filtered = filtered.filter((order) =>
-        removeVietnameseTones(order.orderCode.toLowerCase()).includes(normalizedSearch)
+        removeVietnameseTones(order.orderCode.toLowerCase()).includes(
+          normalizedSearch
+        )
       );
     }
 
@@ -101,23 +129,33 @@ const OrderTableForSalesManager: React.FC<OrderTableProps> = ({ orders }) => {
     }
 
     if (customerFilter !== null) {
-      filtered = filtered.filter((order) => order.customerId === customerFilter);
+      filtered = filtered.filter(
+        (order) => order.customerId === customerFilter
+      );
     }
 
     if (dateRange) {
       filtered = filtered.filter((order) => {
         const createdDate = new Date(order.createdDate);
-        return createdDate >= new Date(dateRange[0]) && createdDate <= new Date(dateRange[1]);
+        return (
+          createdDate >= new Date(dateRange[0]) &&
+          createdDate <= new Date(dateRange[1])
+        );
       });
     }
 
     if (priceRange) {
       const [min, max] = priceRange.split("-").map(Number);
-      filtered = filtered.filter((order) =>
-        (isNaN(min) || order.totalAmount >= min) && (isNaN(max) || order.totalAmount <= max)
+      filtered = filtered.filter(
+        (order) =>
+          (isNaN(min) || order.totalAmount >= min) &&
+          (isNaN(max) || order.totalAmount <= max)
       );
     }
-    filtered.sort((a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime());
+    filtered.sort(
+      (a, b) =>
+        new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
+    );
     setFilteredOrders(filtered);
   }, [searchTerm, statusFilter, customerFilter, dateRange, priceRange, orders]);
 
@@ -149,7 +187,9 @@ const OrderTableForSalesManager: React.FC<OrderTableProps> = ({ orders }) => {
       if (error.response?.status === 401) {
         message.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!");
       } else {
-        message.error(error.response?.data?.message || "Lỗi khi xác nhận đơn hàng!");
+        message.error(
+          error.response?.data?.message || "Lỗi khi xác nhận đơn hàng!"
+        );
       }
     }
   };
@@ -175,14 +215,18 @@ const OrderTableForSalesManager: React.FC<OrderTableProps> = ({ orders }) => {
           )
         );
       } else {
-        message.error(response.data.message || "Không thể hoàn thành đơn hàng!");
+        message.error(
+          response.data.message || "Không thể hoàn thành đơn hàng!"
+        );
       }
     } catch (error: any) {
       console.error("Lỗi khi hoàn thành đơn hàng:", error);
       if (error.response?.status === 401) {
         message.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!");
       } else {
-        message.error(error.response?.data?.message || "Lỗi khi hoàn thành đơn hàng!");
+        message.error(
+          error.response?.data?.message || "Lỗi khi hoàn thành đơn hàng!"
+        );
       }
     }
   };
@@ -211,7 +255,10 @@ const OrderTableForSalesManager: React.FC<OrderTableProps> = ({ orders }) => {
         message.error(response.data.message || "Không thể hủy đơn hàng!");
       }
     } catch (error: any) {
-      console.error("Lỗi khi hủy đơn hàng:", error.response ? error.response.data : error.message);
+      console.error(
+        "Lỗi khi hủy đơn hàng:",
+        error.response ? error.response.data : error.message
+      );
       if (error.response?.status === 401) {
         message.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!");
       } else if (error.response?.status === 400) {
@@ -257,11 +304,14 @@ const OrderTableForSalesManager: React.FC<OrderTableProps> = ({ orders }) => {
 
   const fetchOrderDetails = async (orderId: number) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/Order/GetOrdersDetailByOrderId/${orderId}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }); 
+      const response = await axios.get(
+        `${API_BASE_URL}/Order/GetOrdersDetailByOrderId/${orderId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
       setOrderDetails(response.data.data || []);
       setIsDetailModalOpen(true);
     } catch (error) {
@@ -321,21 +371,36 @@ const OrderTableForSalesManager: React.FC<OrderTableProps> = ({ orders }) => {
         <Dropdown
           overlay={
             <Menu>
-              <Menu.Item key="view" onClick={() => { setSelectedOrder(record); fetchOrderDetails(record.orderId); }}>
+              <Menu.Item
+                key="view"
+                onClick={() => {
+                  setSelectedOrder(record);
+                  fetchOrderDetails(record.orderId);
+                }}
+              >
                 <EyeOutlined /> Xem chi tiết
               </Menu.Item>
               {record.status === 2 && user?.roleName === "SalesManager" && (
-                <Menu.Item key="confirm" onClick={() => showConfirmModal(record.orderId)}>
+                <Menu.Item
+                  key="confirm"
+                  onClick={() => showConfirmModal(record.orderId)}
+                >
                   <CheckOutlined /> Xác nhận
                 </Menu.Item>
               )}
               {record.status === 4 && (
-                <Menu.Item key="complete" onClick={() => showCompleteModal(record.orderId)}>
+                <Menu.Item
+                  key="complete"
+                  onClick={() => showCompleteModal(record.orderId)}
+                >
                   <CheckOutlined /> Hoàn thành
                 </Menu.Item>
               )}
-              {record.status <= 3 && user?.roleName === "SalesManager" && (
-                <Menu.Item key="cancel" onClick={() => showCancelModal(record.orderId)}>
+              {record.status <= 2 && user?.roleName === "SalesManager" && (
+                <Menu.Item
+                  key="cancel"
+                  onClick={() => showCancelModal(record.orderId)}
+                >
                   <CloseOutlined /> Hủy đơn hàng
                 </Menu.Item>
               )}
@@ -350,7 +415,11 @@ const OrderTableForSalesManager: React.FC<OrderTableProps> = ({ orders }) => {
   ];
 
   const detailColumns = [
-    { title: "Tên sản phẩm", dataIndex: ["product", "productName"], key: "productName" },
+    {
+      title: "Tên sản phẩm",
+      dataIndex: ["product", "productName"],
+      key: "productName",
+    },
     { title: "Số lượng", dataIndex: "quantity", key: "quantity" },
     {
       title: "Thuế (%VAT)",
@@ -367,14 +436,19 @@ const OrderTableForSalesManager: React.FC<OrderTableProps> = ({ orders }) => {
     {
       title: "Tổng giá (VND)",
       key: "total",
-      render: (record: OrderDetail) => `${(record.quantity * record.product.sellingPrice).toLocaleString()} `,
+      render: (record: OrderDetail) =>
+        `${(record.quantity * record.product.sellingPrice).toLocaleString()} `,
     },
     {
       title: "Thành tiền (bao gồm thuế) (VND)",
       key: "totalWithTax",
       render: (record: OrderDetail) => {
-        const vat = record.product.vat != null && !isNaN(record.product.vat) ? record.product.vat : 0;
-        const totalWithTax = record.quantity * record.product.sellingPrice * (1 + vat / 100);
+        const vat =
+          record.product.vat != null && !isNaN(record.product.vat)
+            ? record.product.vat
+            : 0;
+        const totalWithTax =
+          record.quantity * record.product.sellingPrice * (1 + vat / 100);
         return `${totalWithTax.toLocaleString()} `;
       },
     },
@@ -399,7 +473,12 @@ const OrderTableForSalesManager: React.FC<OrderTableProps> = ({ orders }) => {
           style={{ width: 200 }}
           allowClear
         />
-        <Button icon={<FilterOutlined />} onClick={() => setShowFilters(!showFilters)}>Lọc</Button>
+        <Button
+          icon={<FilterOutlined />}
+          onClick={() => setShowFilters(!showFilters)}
+        >
+          Lọc
+        </Button>
       </div>
 
       {showFilters && (
@@ -415,7 +494,9 @@ const OrderTableForSalesManager: React.FC<OrderTableProps> = ({ orders }) => {
                   allowClear
                 >
                   {orderStatuses.map((status, index) => (
-                    <Option key={index} value={index}>{status}</Option>
+                    <Option key={index} value={index}>
+                      {status}
+                    </Option>
                   ))}
                 </Select>
               )}
@@ -429,7 +510,10 @@ const OrderTableForSalesManager: React.FC<OrderTableProps> = ({ orders }) => {
                 showSearch
                 optionFilterProp="children"
                 filterOption={(input, option) =>
-                  option?.children?.toString().toLowerCase().includes(input.toLowerCase()) ?? false
+                  option?.children
+                    ?.toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase()) ?? false
                 }
               >
                 {uniqueCustomers.map((customer) => (
@@ -457,7 +541,13 @@ const OrderTableForSalesManager: React.FC<OrderTableProps> = ({ orders }) => {
               <div className="col-span-3">
                 <span style={{ marginRight: 8 }}>Lọc theo ngày tạo:</span>
                 <RangePicker
-                  onChange={(_, dateStrings) => setDateRange(dateStrings.length === 2 ? dateStrings as [string, string] : null)}
+                  onChange={(_, dateStrings) =>
+                    setDateRange(
+                      dateStrings.length === 2
+                        ? (dateStrings as [string, string])
+                        : null
+                    )
+                  }
                   style={{ width: "100%" }}
                 />
               </div>
