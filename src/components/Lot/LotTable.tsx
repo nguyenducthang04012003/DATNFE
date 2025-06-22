@@ -361,7 +361,7 @@ const LotTable: React.FC<LotTableProps> = ({ rowSelection }) => {
 
   useEffect(() => {
     fetchData(); // Gọi lần đầu khi mount
-    const interval = setInterval(fetchData, 30000); // Thăm dò mỗi 30 giây
+    const interval = setInterval(fetchData, 86400000); // Thăm dò mỗi 1 ngày
     return () => clearInterval(interval);
   }, []);
 

@@ -42,11 +42,14 @@ const AddNoteCheck: React.FC<AddNoteCheckProps> = ({ handleChangePage }) => {
   const [form] = Form.useForm();
   const [storageRooms, setStorageRooms] = useState<StorageRoom[]>([]);
   const [productLots, setProductLots] = useState<ProductLot[]>([]);
-  const [pendingNoteCheckProductLotIds, setPendingNoteCheckProductLotIds] = useState<number[]>([]);
+  const [pendingNoteCheckProductLotIds, setPendingNoteCheckProductLotIds] =
+    useState<number[]>([]);
   const [details, setDetails] = useState<NoteCheckDetailForm[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [apiLoading, setApiLoading] = useState<boolean>(true);
-  const [selectedStorageRoomId, setSelectedStorageRoomId] = useState<number | null>(null);
+  const [selectedStorageRoomId, setSelectedStorageRoomId] = useState<
+    number | null
+  >(null);
   const navigate = useNavigate();
 
   const USE_AUTH_TOKEN = false;
@@ -133,7 +136,12 @@ const AddNoteCheck: React.FC<AddNoteCheckProps> = ({ handleChangePage }) => {
 
   const handleStorageRoomChange = (value: number) => {
     setSelectedStorageRoomId(value);
-    form.resetFields(["productLotId", "storageQuantity", "actualQuantity", "errorQuantity"]);
+    form.resetFields([
+      "productLotId",
+      "storageQuantity",
+      "actualQuantity",
+      "errorQuantity",
+    ]);
     setDetails([]);
     fetchPendingNoteChecks(value);
   };
@@ -150,9 +158,11 @@ const AddNoteCheck: React.FC<AddNoteCheckProps> = ({ handleChangePage }) => {
   const handleAddDetail = (values: any) => {
     const storageQuantity = Number(values.storageQuantity);
     const actualQuantity = Number(values.actualQuantity);
-    const errorQuantity = 0;
+    // const errorQuantity = 0;
     const productLotId = Number(values.productLotId);
-    const differenceQuatity = storageQuantity - actualQuantity;
+    const differenceQuatity = Math.abs(storageQuantity - actualQuantity);
+    const errorQuantity =
+      actualQuantity > storageQuantity ? actualQuantity - storageQuantity : 0;
 
     if (
       isNaN(storageQuantity) ||
@@ -161,7 +171,16 @@ const AddNoteCheck: React.FC<AddNoteCheckProps> = ({ handleChangePage }) => {
       storageQuantity < 0 ||
       actualQuantity < 0
     ) {
-      message.error("Vui lòng nhập số hợp lệ và không âm cho số lượng kho và thực tế.");
+      message.error(
+        "Vui lòng nhập số hợp lệ và không âm cho số lượng kho và thực tế."
+      );
+      return;
+    }
+
+    if (storageQuantity === actualQuantity) {
+      message.info(
+        "Số lượng thực tế bằng với số lượng trong kho. Không có chênh lệch."
+      );
       return;
     }
 
@@ -186,7 +205,12 @@ const AddNoteCheck: React.FC<AddNoteCheckProps> = ({ handleChangePage }) => {
       differenceQuatity: differenceQuatity >= 0 ? differenceQuatity : 0,
     };
     setDetails([...details, newDetail]);
-    form.resetFields(["productLotId", "storageQuantity", "actualQuantity", "errorQuantity"]);
+    form.resetFields([
+      "productLotId",
+      "storageQuantity",
+      "actualQuantity",
+      "errorQuantity",
+    ]);
   };
 
   const handleRemoveDetail = (index: number) => {
@@ -200,7 +224,9 @@ const AddNoteCheck: React.FC<AddNoteCheckProps> = ({ handleChangePage }) => {
     }
 
     if (!user?.customerId || isNaN(Number(user.customerId))) {
-      message.error("Thông tin người dùng không hợp lệ. Vui lòng đăng nhập lại.");
+      message.error(
+        "Thông tin người dùng không hợp lệ. Vui lòng đăng nhập lại."
+      );
       return;
     }
 
@@ -245,21 +271,29 @@ const AddNoteCheck: React.FC<AddNoteCheckProps> = ({ handleChangePage }) => {
           detail.storageQuantity < 0 ||
           detail.actualQuantity < 0
         ) {
-          throw new Error(`Dữ liệu chi tiết không hợp lệ: ${JSON.stringify(detail)}`);
+          throw new Error(
+            `Dữ liệu chi tiết không hợp lệ: ${JSON.stringify(detail)}`
+          );
         }
         const lot = productLots.find((lot) => lot.id === detail.productLotId);
         if (!lot || lot.storageRoomId !== payload.storageRoomId) {
-          throw new Error(`Lô sản phẩm không hợp lệ hoặc không thuộc kho: ${detail.productLotId}`);
+          throw new Error(
+            `Lô sản phẩm không hợp lệ hoặc không thuộc kho: ${detail.productLotId}`
+          );
         }
       }
 
       const headers = {
         accept: "*/*",
         "Content-Type": "application/json",
-        ...(USE_AUTH_TOKEN && token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(USE_AUTH_TOKEN && token
+          ? { Authorization: `Bearer ${token}` }
+          : {}),
       };
 
-      const response = await apiClient.post("/NoteCheck/create", payload, { headers });
+      const response = await apiClient.post("/NoteCheck/create", payload, {
+        headers,
+      });
 
       message.success(response.data.message || "Tạo phiếu kiểm kê thành công");
       handleChangePage("Danh sách phiếu kiểm kê");
@@ -316,7 +350,10 @@ const AddNoteCheck: React.FC<AddNoteCheckProps> = ({ handleChangePage }) => {
       title: "Hành động",
       key: "action",
       render: (_: any, record: NoteCheckDetailForm) => (
-        <Button danger onClick={() => handleRemoveDetail(details.indexOf(record))}>
+        <Button
+          danger
+          onClick={() => handleRemoveDetail(details.indexOf(record))}
+        >
           Xóa
         </Button>
       ),
@@ -339,7 +376,10 @@ const AddNoteCheck: React.FC<AddNoteCheckProps> = ({ handleChangePage }) => {
             onChange={handleStorageRoomChange}
           >
             {storageRooms.map((room) => (
-              <Select.Option key={room.storageRoomId} value={room.storageRoomId}>
+              <Select.Option
+                key={room.storageRoomId}
+                value={room.storageRoomId}
+              >
                 {room.storageRoomName}
               </Select.Option>
             ))}
@@ -364,11 +404,15 @@ const AddNoteCheck: React.FC<AddNoteCheckProps> = ({ handleChangePage }) => {
             <Select
               placeholder="Chọn lô sản phẩm"
               loading={apiLoading}
-              disabled={apiLoading || !selectedStorageRoomId || details.length > 0}
+              disabled={
+                apiLoading || !selectedStorageRoomId || details.length > 0
+              }
               onChange={handleProductLotChange}
               showSearch
               filterOption={(input, option) => {
-                const lot = filteredProductLots.find((lot) => lot.id === option?.value);
+                const lot = filteredProductLots.find(
+                  (lot) => lot.id === option?.value
+                );
                 if (!lot) return false;
                 const searchText = input.toLowerCase();
                 return (
@@ -393,7 +437,9 @@ const AddNoteCheck: React.FC<AddNoteCheckProps> = ({ handleChangePage }) => {
               {
                 validator: async (_, value) => {
                   if (value && (isNaN(Number(value)) || Number(value) < 0)) {
-                    return Promise.reject(new Error("Số lượng kho phải là số không âm"));
+                    return Promise.reject(
+                      new Error("Số lượng kho phải là số không âm")
+                    );
                   }
                   return Promise.resolve();
                 },
@@ -416,7 +462,9 @@ const AddNoteCheck: React.FC<AddNoteCheckProps> = ({ handleChangePage }) => {
               {
                 validator: async (_, value) => {
                   if (value && (isNaN(Number(value)) || Number(value) < 0)) {
-                    return Promise.reject(new Error("Số lượng thực tế phải là số không âm"));
+                    return Promise.reject(
+                      new Error("Số lượng thực tế phải là số không âm")
+                    );
                   }
                   return Promise.resolve();
                 },
@@ -435,7 +483,9 @@ const AddNoteCheck: React.FC<AddNoteCheckProps> = ({ handleChangePage }) => {
             <Button
               type="primary"
               htmlType="submit"
-              disabled={apiLoading || !selectedStorageRoomId || details.length > 0}
+              disabled={
+                apiLoading || !selectedStorageRoomId || details.length > 0
+              }
             >
               Thêm sản phẩm
             </Button>
@@ -455,7 +505,11 @@ const AddNoteCheck: React.FC<AddNoteCheckProps> = ({ handleChangePage }) => {
         <Form.Item>
           <Button
             type="primary"
-            onClick={() => form.validateFields(['storageRoomId', 'reasonCheck']).then(handleSubmit)}
+            onClick={() =>
+              form
+                .validateFields(["storageRoomId", "reasonCheck"])
+                .then(handleSubmit)
+            }
             loading={loading}
             disabled={details.length === 0}
           >
