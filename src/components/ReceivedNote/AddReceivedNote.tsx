@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Form, InputNumber, Select, DatePicker, Typography, Statistic, message } from "antd";
+import {
+  Table,
+  Button,
+  Form,
+  InputNumber,
+  Select,
+  DatePicker,
+  Typography,
+  Statistic,
+  message,
+} from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import axios from "axios";
@@ -21,6 +31,9 @@ interface ReceivedNoteDetail {
   LotCode: string;
   ActualReceived: number;
   SupplyPrice: number;
+  OrderQuantity: number;
+  Quantity: number;
+  ShortageQuantity: number;
 }
 
 interface ReceivedNote {
@@ -51,6 +64,9 @@ interface ProductLot {
   productName: string;
   lotCode: string;
   supplyPrice: number;
+  orderQuantity: number;
+  quantity: number;
+  shortageQuantity: number;
 }
 
 const AddReceivedNote: React.FC<AddReceivedNoteProps> = ({
@@ -80,10 +96,15 @@ const AddReceivedNote: React.FC<AddReceivedNoteProps> = ({
     const fetchPurchaseOrders = async () => {
       try {
         const token = localStorage.getItem("accessToken");
-        const response = await axios.get(`${API_BASE_URL}/PurchaseOrders/GetPurchaseOrdersList`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const filteredOrders = (response.data.data || []).filter((po: PurchaseOrder) => po.status !== 3);
+        const response = await axios.get(
+          `${API_BASE_URL}/PurchaseOrders/GetPurchaseOrdersList`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const filteredOrders = (response.data.data || []).filter(
+          (po: PurchaseOrder) => po.status !== 3
+        );
         setPurchaseOrders(filteredOrders);
       } catch (error) {
         console.error("Error fetching purchase orders:", error);
@@ -117,7 +138,9 @@ const AddReceivedNote: React.FC<AddReceivedNoteProps> = ({
           const response = await axios.get(`${API_BASE_URL}/ProductLot`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          const filteredProducts = response.data.data.filter((p: ProductLot) => p.lotId === selectedLot);
+          const filteredProducts = response.data.data.filter(
+            (p: ProductLot) => p.lotId === selectedLot
+          );
           setProductLots(filteredProducts || []);
         } catch (error) {
           console.error("Error fetching product lots:", error);
@@ -131,7 +154,9 @@ const AddReceivedNote: React.FC<AddReceivedNoteProps> = ({
   }, [selectedLot]);
 
   useEffect(() => {
-    const isValidOrder = purchaseOrders.find((po) => po.purchaseOrderId === purchaseOrderId && po.status !== 3);
+    const isValidOrder = purchaseOrders.find(
+      (po) => po.purchaseOrderId === purchaseOrderId && po.status !== 3
+    );
     form.setFieldsValue({
       purchaseOrderId: isValidOrder ? purchaseOrderId : undefined,
       receiveNotesCode: generateReceiveNotesCode(),
@@ -149,7 +174,10 @@ const AddReceivedNote: React.FC<AddReceivedNoteProps> = ({
     label: p.productName,
   }));
 
-  const totalAmount = details.reduce((sum, item) => sum + item.ActualReceived * item.SupplyPrice, 0);
+  const totalAmount = details.reduce(
+    (sum, item) => sum + item.ActualReceived * item.SupplyPrice,
+    0
+  );
 
   const handleSelectLot = (value: number) => {
     setSelectedLot(value);
@@ -170,12 +198,19 @@ const AddReceivedNote: React.FC<AddReceivedNoteProps> = ({
           LotCode: product.lotCode,
           ActualReceived: 1,
           SupplyPrice: product.supplyPrice,
+          OrderQuantity: product.orderQuantity,
+          Quantity: product.quantity,
+          ShortageQuantity: product.orderQuantity - product.quantity,
         },
       ]);
     }
   };
 
-  const handleDetailChange = (index: number, field: keyof ReceivedNoteDetail, value: any) => {
+  const handleDetailChange = (
+    index: number,
+    field: keyof ReceivedNoteDetail,
+    value: any
+  ) => {
     const updatedDetails = [...details];
     updatedDetails[index] = { ...updatedDetails[index], [field]: value };
     setDetails(updatedDetails);
@@ -195,13 +230,17 @@ const AddReceivedNote: React.FC<AddReceivedNoteProps> = ({
 
       const values = await form.validateFields();
       if (details.length === 0) {
-        message.warning("Vui lòng thêm ít nhất một sản phẩm vào chi tiết phiếu!");
+        message.warning(
+          "Vui lòng thêm ít nhất một sản phẩm vào chi tiết phiếu!"
+        );
         return;
       }
 
       for (const detail of details) {
         if (detail.ActualReceived <= 0) {
-          message.error(`Số lượng của sản phẩm "${detail.ProductName}" phải lớn hơn 0!`);
+          message.error(
+            `Số lượng của sản phẩm "${detail.ProductName}" phải lớn hơn 0!`
+          );
           return;
         }
       }
@@ -219,7 +258,7 @@ const AddReceivedNote: React.FC<AddReceivedNoteProps> = ({
       const token = localStorage.getItem("accessToken");
       const payload = {
         purchaseOrderId: newNote.PurchaseOrderId,
-        receivedNoteDetail: details.map(detail => ({
+        receivedNoteDetail: details.map((detail) => ({
           productLotId: detail.ProductLotId,
           actualReceived: detail.ActualReceived,
         })),
@@ -228,14 +267,18 @@ const AddReceivedNote: React.FC<AddReceivedNoteProps> = ({
       console.log("Payload gửi lên API:", JSON.stringify(payload, null, 2));
 
       // Kiểm tra purchaseOrderId và productLotId trước khi gửi
-      const poExists = purchaseOrders.some(po => po.purchaseOrderId === newNote.PurchaseOrderId);
+      const poExists = purchaseOrders.some(
+        (po) => po.purchaseOrderId === newNote.PurchaseOrderId
+      );
       if (!poExists) {
         message.error(`Đơn hàng ID ${newNote.PurchaseOrderId} không tồn tại!`);
         return;
       }
 
       for (const detail of details) {
-        const productLotExists = productLots.some(pl => pl.id === detail.ProductLotId);
+        const productLotExists = productLots.some(
+          (pl) => pl.id === detail.ProductLotId
+        );
         if (!productLotExists) {
           message.error(`ProductLot ID ${detail.ProductLotId} không tồn tại!`);
           return;
@@ -256,7 +299,9 @@ const AddReceivedNote: React.FC<AddReceivedNoteProps> = ({
       console.log("API response:", JSON.stringify(response.data, null, 2));
 
       handleAddNote(newNote);
-      message.success(response.data.message || "Tạo phiếu nhập kho thành công!");
+      message.success(
+        response.data.message || "Tạo phiếu nhập kho thành công!"
+      );
       onRefreshPurchaseOrders?.();
       handleChangePage("Danh sách phiếu nhập");
     } catch (error: any) {
@@ -265,7 +310,10 @@ const AddReceivedNote: React.FC<AddReceivedNoteProps> = ({
         error.response?.data?.message ||
         error.response?.data?.errors?.[0] ||
         "Không thể tạo phiếu nhập kho! Vui lòng kiểm tra dữ liệu đầu vào.";
-      console.error("Detailed error:", JSON.stringify(error.response?.data, null, 2));
+      console.error(
+        "Detailed error:",
+        JSON.stringify(error.response?.data, null, 2)
+      );
       message.error(errorMessage);
     }
   };
@@ -274,16 +322,32 @@ const AddReceivedNote: React.FC<AddReceivedNoteProps> = ({
     { title: "Tên sản phẩm", dataIndex: "ProductName", key: "ProductName" },
     { title: "Số lô", dataIndex: "LotCode", key: "LotCode" },
     {
-      title: "Số lượng",
+      title: "Số lượng nhập hàng",
       dataIndex: "ActualReceived",
       key: "ActualReceived",
-      render: (_: any, record: any, index: number) => (
-        <InputNumber
-          min={1}
-          value={record.ActualReceived}
-          onChange={(value) => handleDetailChange(index, "ActualReceived", value)}
-        />
-      ),
+      render: (_: any, record: any, index: number) => {
+        const shortageQuantity = record.ShortageQuantity; 
+        return (
+          <InputNumber
+            min={1}
+            value={record.ActualReceived}
+            onChange={(value) => {
+              if (value > shortageQuantity) {
+                message.error(
+                  `Số lượng nhập không được vượt quá số lượng thiếu (${shortageQuantity})`
+                );
+                return;
+              }
+              handleDetailChange(index, "ActualReceived", value);
+            }}
+          />
+        );
+      },
+    },
+    {
+      title: "Thiếu hụt (Đặt - Thực tế)",
+      dataIndex: "ShortageQuantity",
+      key: "ShortageQuantity",
     },
     {
       title: "Giá nhập",
@@ -294,13 +358,20 @@ const AddReceivedNote: React.FC<AddReceivedNoteProps> = ({
     {
       title: "Thành tiền",
       key: "TotalPrice",
-      render: (_: any, record: any) => `${(record.ActualReceived * record.SupplyPrice).toLocaleString("vi-VN")} VND`,
+      render: (_: any, record: any) =>
+        `${(record.ActualReceived * record.SupplyPrice).toLocaleString(
+          "vi-VN"
+        )} VND`,
     },
     {
       title: "Thao tác",
       key: "action",
       render: (_: any, __: any, index: number) => (
-        <Button danger icon={<DeleteOutlined />} onClick={() => handleRemoveDetail(index)} />
+        <Button
+          danger
+          icon={<DeleteOutlined />}
+          onClick={() => handleRemoveDetail(index)}
+        />
       ),
     },
   ];
@@ -319,7 +390,9 @@ const AddReceivedNote: React.FC<AddReceivedNoteProps> = ({
             disabled={!!purchaseOrderId}
             showSearch
             filterOption={(input, option) => {
-              const po = purchaseOrders.find((po) => po.purchaseOrderId === option?.value);
+              const po = purchaseOrders.find(
+                (po) => po.purchaseOrderId === option?.value
+              );
               if (!po) return false;
               const searchText = input.toLowerCase();
               return (
@@ -358,7 +431,9 @@ const AddReceivedNote: React.FC<AddReceivedNoteProps> = ({
 
       <Title level={5}>Chọn sản phẩm</Title>
       <Select
-        placeholder={selectedLot ? "Chọn sản phẩm..." : "Vui lòng chọn lô trước"}
+        placeholder={
+          selectedLot ? "Chọn sản phẩm..." : "Vui lòng chọn lô trước"
+        }
         value={selectedProduct}
         options={productOptions}
         onChange={handleSelectProduct}
@@ -366,13 +441,20 @@ const AddReceivedNote: React.FC<AddReceivedNoteProps> = ({
         disabled={!selectedLot}
       />
 
-      <Table columns={columns} dataSource={details} rowKey="ReceiveNoteDetailId" />
+      <Table
+        columns={columns}
+        dataSource={details}
+        rowKey="ReceiveNoteDetailId"
+      />
       <Statistic title="Tổng tiền" value={totalAmount} suffix="VND" />
 
       <Button type="primary" onClick={handleSave} className="bg-blue-500">
         Lưu phiếu
       </Button>
-      <Button style={{ marginLeft: 8 }} onClick={() => handleChangePage("Danh sách phiếu nhập")}>
+      <Button
+        style={{ marginLeft: 8 }}
+        onClick={() => handleChangePage("Danh sách phiếu nhập")}
+      >
         Hủy
       </Button>
     </div>
