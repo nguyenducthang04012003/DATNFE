@@ -655,17 +655,17 @@ const LotTable: React.FC<LotTableProps> = ({ rowSelection }) => {
         </span>
       ),
     },
-    {
-      title: "Số Ngày Còn Hạn",
-      key: "remainingDays",
-      width: 150,
-      align: "right" as const,
-      sorter: (a: ProductLot, b: ProductLot) =>
-        calculateRemainingDays(a.manufacturedDate, a.expiredDate) -
-        calculateRemainingDays(b.manufacturedDate, b.expiredDate),
-      render: (_: any, record: ProductLot) =>
-        formatRemainingDays(record.manufacturedDate, record.expiredDate),
-    },
+    // {
+    //   title: "Số Ngày Còn Hạn",
+    //   key: "remainingDays",
+    //   width: 150,
+    //   align: "right" as const,
+    //   sorter: (a: ProductLot, b: ProductLot) =>
+    //     calculateRemainingDays(a.manufacturedDate, a.expiredDate) -
+    //     calculateRemainingDays(b.manufacturedDate, b.expiredDate),
+    //   render: (_: any, record: ProductLot) =>
+    //     formatRemainingDays(record.manufacturedDate, record.expiredDate),
+    // },
     {
       title: "",
       key: "actions",
@@ -976,7 +976,7 @@ const LotTable: React.FC<LotTableProps> = ({ rowSelection }) => {
                   )}
                 </span>
 
-                <span style={{ fontWeight: "500", color: "#8c8c8c" }}>
+                {/* <span style={{ fontWeight: "500", color: "#8c8c8c" }}>
                   Số Ngày Còn Hạn:
                 </span>
                 <span style={{ color: "#262626" }}>
@@ -984,7 +984,7 @@ const LotTable: React.FC<LotTableProps> = ({ rowSelection }) => {
                     selectedLot.manufacturedDate,
                     selectedLot.expiredDate
                   )}
-                </span>
+                </span> */}
               </div>
               <div style={{ textAlign: "right" }}>
                 <Button
